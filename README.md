@@ -15,13 +15,18 @@ Server: http://localhost:3000
 ## Implemented so far (current)
 
 - GET / → 200 OK (text/plain)
+- GET /health → 200 OK (application/json)
+- Unknown routes → 404 Not Found (application/json)
 
 ## Curl tests (current)
 
 ```bash
+# routes that exist
 curl -i http://localhost:3000/
-curl -i http://localhost:3000/anything
+curl -i http://localhost:3000/health
 ```
+# not found
+curl -i http://localhost:3000/nope
 
 ## Planned endpoints (spec)
 
@@ -46,7 +51,7 @@ curl -i http://localhost:3000/anything
 - [x] 0.2 Node basics (npm init, scripts)
 - [x] 0.3 Git basics (init/add/commit, gitignore)
 - [x] 0.4 Raw HTTP server
-- [ ] 0.5 Routing by path + 404 JSON
+- [x] 0.5 0.5 Routing by path + 404(URL string routing) 
 - [ ] 0.6 Status codes + headers correctness
 - [ ] 0.7 Query params: `/hello?name=...`
 - [ ] 0.8 Search: `/search?q=...`
