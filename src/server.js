@@ -1,5 +1,5 @@
-// Phase 0 - Lesson 0.6
-// Goal: cleaner routing + correct headers + consistent responses (helpers)
+// Phase 0 - Lesson 0.7
+
 
 
 const http =require("http");
@@ -12,7 +12,7 @@ function sendText(res, statusCode, text){
     res.end(text);
 }
 
-funtion sendJson(res, statusCode, obj){
+function sendJson(res, statusCode, obj){
     res.statusCode = statusCode;
     res.setHeader("Content-Type","application/json; charset=utf-8");
     res.end(JSON.stringify(obj));
@@ -27,10 +27,10 @@ const server = http.createServer((req,res)=>{
     const fullUrl = new URL(req.url, `http://${req.headers.host || "localhost" }`);
     const pathname = fullUrl.pathname;
     
-    console.log("METHOD:", req.method, "URL:", req.url);
+    console.log("METHOD:", req.method, "PATH:", pathname, fullUrl.search);
 
     if (pathname ==="/"){
-        return sendText(res, 200, "Homepage\n");
+        return sendText(res, 200, "Try: /hello?name=ZulkerNyne\n");
     }
 
     if (pathname ==="/health"){
@@ -39,10 +39,19 @@ const server = http.createServer((req,res)=>{
 
 
     }
+    // NEW: /hello?name=...
+    if (pathname ==="/hello"){
+        const name = fullUrl.searchParams.get("name");
+
+        if (!name){
+            return sendJson(res,400,{error: "Missing ?name= in query string"});
+        }
+        return sendJson(res, 200, {message: `Hello ${name}!` ,});
+    }
     //Consistent API-style 404(JSON)
     return sendJson(res, 404, {error: "Not Found", path: pathname});
 });
 
-server.listen(3000,()=>{
-    console.log("Server is running at http://localhost:3000");
+server.listen(PORT,()=>{
+    console.log(`Server is running at http://localhost:${PORT}`);
 });

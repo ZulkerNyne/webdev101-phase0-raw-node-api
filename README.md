@@ -16,16 +16,22 @@ Server: http://localhost:3000
 
 - GET / → 200 OK (text/plain)
 - GET /health → 200 OK (application/json)
+- GET /hello?name=... → 200 OK (application/json)
+- GET /hello (missing name) → 400 Bad Request (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
 ## Curl tests (current)
 
 ```bash
-# routes that exist
+# home + health
 curl -i http://localhost:3000/
 curl -i http://localhost:3000/health
-```
-# not found
+
+# hello
+curl -i "http://localhost:3000/hello?name=ZulkerNyne"
+curl -i "http://localhost:3000/hello"
+
+# 404
 curl -i http://localhost:3000/nope
 
 ## Planned endpoints (spec)
@@ -52,8 +58,8 @@ curl -i http://localhost:3000/nope
 - [x] 0.3 Git basics (init/add/commit, gitignore)
 - [x] 0.4 Raw HTTP server
 - [x] 0.5 0.5 Routing by path + 404(URL string routing) 
-- [ ] 0.6 Status codes + headers correctness(response helper + JSON 404)
-- [ ] 0.7 Query params: `/hello?name=...`
+- [x] 0.6 Status codes + headers correctness(response helpers+JSON 404)
+- [x] 0.7 Query params: `/hello?name=...`
 - [ ] 0.8 Search: `/search?q=...`
 - [ ] 0.9 Validation + normalization + limits
 - [ ] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
