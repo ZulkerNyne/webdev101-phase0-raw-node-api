@@ -12,7 +12,7 @@ function sendText(res, statusCode, text){
     res.end(text);
 }
 
-funtion sendJson(res, statusCode, obj){
+function sendJson(res, statusCode, obj){
     res.statusCode = statusCode;
     res.setHeader("Content-Type","application/json; charset=utf-8");
     res.end(JSON.stringify(obj));
@@ -43,6 +43,6 @@ const server = http.createServer((req,res)=>{
     return sendJson(res, 404, {error: "Not Found", path: pathname});
 });
 
-server.listen(3000,()=>{
-    console.log("Server is running at http://localhost:3000");
+server.listen(PORT,()=>{
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
