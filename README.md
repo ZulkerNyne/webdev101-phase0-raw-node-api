@@ -58,7 +58,7 @@ curl -i http://localhost:3000/nope
 - [x] 0.3 Git basics (init/add/commit, gitignore)
 - [x] 0.4 Raw HTTP server
 - [x] 0.5 0.5 Routing by path + 404(URL string routing) 
-- [x] 0.6 Status codes + headers correctness(response helpers+JSON 404)
+- [x] 0.6 Status codes + headers correctness(response helper + JSON 404)
 - [x] 0.7 Query params: `/hello?name=...`
 - [ ] 0.8 Search: `/search?q=...`
 - [ ] 0.9 Validation + normalization + limits
