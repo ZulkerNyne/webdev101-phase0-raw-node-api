@@ -1,27 +1,46 @@
-const http =require("http");
+// Phase 0 - Lesson 0.6
+// Goal: cleaner routing + correct headers + consistent responses (helpers)
 
+
+const http =require("http");
+const {URL} = require("url");
 const PORT = process.env.PORT? Number(process.env.PORT) : 3000;
+
+function sendText(res, statusCode, text){
+    res.statusCode = statusCode;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(text);
+}
+
+funtion sendJson(res, statusCode, obj){
+    res.statusCode = statusCode;
+    res.setHeader("Content-Type","application/json; charset=utf-8");
+    res.end(JSON.stringify(obj));
+
+}
+
+
+
+
 const server = http.createServer((req,res)=>{
+    // Parse URL safely (pathname excludes query string)
+    const fullUrl = new URL(req.url, `http://${req.headers.host || "localhost" }`);
+    const pathname = fullUrl.pathname;
+    
     console.log("METHOD:", req.method, "URL:", req.url);
 
-    if (req.url ==="/"){
-        res.statusCode=200;
-        res.setHeader("Content-Type", "text/plain; charset=utf-8");
-        res.end("Home page\n");
-        return;
+    if (pathname ==="/"){
+        return sendText(res, 200, "Homepage\n");
     }
 
-    if (req.url ==="/health"){
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json; charset=utf-8");
-        res.end(JSON.stringify({status: "Ok" }));
-        return;
+    if (pathname ==="/health"){
+        //Real APIs often return JSON health checks
+        return sendJson(res, 200, {ok: true});
 
 
     }
-    res.statusCode =404;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end("NOT FOUND\n");
+    //Consistent API-style 404(JSON)
+    return sendJson(res, 404, {error: "Not Found", path: pathname});
 });
 
 server.listen(3000,()=>{
