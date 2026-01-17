@@ -18,6 +18,8 @@ Server: http://localhost:3000
 - GET /health → 200 OK (application/json)
 - GET /hello?name=... → 200 OK (application/json)
 - GET /hello (missing name) → 400 Bad Request (application/json)
+- GET /search?q=... → 200 OK (application/json, results array)
+- GET /search (missing q) → 400 Bad Request (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
 ## Curl tests (current)
@@ -31,8 +33,17 @@ curl -i http://localhost:3000/health
 curl -i "http://localhost:3000/hello?name=ZulkerNyne"
 curl -i "http://localhost:3000/hello"
 
+# search (exact match)
+curl -i "http://localhost:3000/search?q=capital%20of%20bangladesh"
+curl -i "http://localhost:3000/search?q=capital%20of%20canada"
+
+# search errors
+curl -i "http://localhost:3000/search"
+curl -i "http://localhost:3000/search?q=capital%20of%20france"
+
 # 404
 curl -i http://localhost:3000/nope
+```
 
 ## Planned endpoints (spec)
 
@@ -60,7 +71,7 @@ curl -i http://localhost:3000/nope
 - [x] 0.5 0.5 Routing by path + 404(URL string routing) 
 - [x] 0.6 Status codes + headers correctness(response helper + JSON 404)
 - [x] 0.7 Query params: `/hello?name=...`
-- [ ] 0.8 Search: `/search?q=...`
+- [x] 0.8 Search: `/search?q=...`
 - [ ] 0.9 Validation + normalization + limits
 - [ ] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
 - [ ] 0.11 Method-aware routing (405 + Allow)
