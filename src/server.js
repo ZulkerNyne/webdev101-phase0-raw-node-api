@@ -1,7 +1,5 @@
-// Phase 0 - Lesson 0.8
-//Goal: /search?q=... return a Google style JSON shape: {query, results: [...]}
-// Endpoint: GET /search?q=...
-// Response shape: { query, results: [...] }
+// Phase 0 - Lesson 0.9
+//Upgrade/search: normalization + partial matches + min length + max results 
 
 const http =require("http");
 const {URL} = require("url");
@@ -54,7 +52,7 @@ const server = http.createServer((req,res)=>{
     console.log("METHOD:", req.method, "PATH:", pathname, "Query:", fullUrl.search);
 
     if (pathname ==="/"){
-        return sendText(res, 200, "Try: /search?q=capital+of+bangladesh\n");
+        return sendText(res, 200, "Try: /search?q=capital or /search?q=bangladesh\n");
     }
 
     if (pathname=== "/search"){
@@ -64,22 +62,44 @@ const server = http.createServer((req,res)=>{
             return sendJson(res, 400, {error: "Missing ?q= in query string"});
         }
 
-        const hit = KNOWLEDGE.find((item) => item.question === q);
-        if (!hit){
-            return sendJson(res, 404, {query: q, results: [], message: "No results found" });
-
-            }
-
-            return sendJson(res,200, {
-                query: q,
-                results: [{title: hit.answer, snippet: `Answer: ${hit.answer}`}],
-            });
+        // too short 
+        if (q.length<3){
+            return sendJson(res, 400, {error: "Query too short. Use at least 3 characters."});
         }
+        //  Partial Matching + multiple results 
+        const hits = KNOWLEDGE.filter((item) =>{
+            const question = normalize(item.question);
+            const answer = normalize(item.answer);
+            return question.includes(q) || answer.includes(q);
+        })
+
+        //No results -> 200 with empty array (search is still valid )
+
+        if (hits.length===0){
+            return sendJson(res, 200, {query: q, count: 0, results: [] });
+        }
+
+        //Limit results 
+        
+        const MAX_RESULTS = 5;
+        const limited = hits.slice(0, MAX_RESULTS);
+
+        //Return GOOGLE style JSON 
+
+        return sendJson(res, 200, {
+            query: q, 
+            count : limited.length, 
+            results : limited.map((item) =>({
+                title : item.answer,
+                snippet : `Q: ${item.question}`,
+            })),
+        });
+        
+
+        
     
     
-    
-    
-    
+    }
     
     //Consistent API-style 404(JSON)
     return sendJson(res, 404, {error: "Not Found", path: pathname});
