@@ -1,26 +1,11 @@
-// Phase 0 - Lesson 0.9
-//Upgrade/search: normalization + partial matches + min length + max results 
+// Phase 0 - Lesson 0.10
+//POST body reading (streaming data/end) + JSON.parse + try/catch
+//Endpoint: POST/echo (expects JSON body)
+//Response: {recieved: <parse-json}
 
 const http =require("http");
 const {URL} = require("url");
 const PORT = process.env.PORT? Number(process.env.PORT) : 3000;
-
-
-const KNOWLEDGE =[
-    {question: "capital of bangladesh", answer: "Dhaka"},
-    {question: "capital of canada", answer: "Ottawa"},
-    {question: "capital of japan", answer: "Tokyo"},
-    {question: "capital of egypt", answer: "Cairo"},
-];
-
-
-// Normalize user input so searching is more reliable.
-// - convert to string (safe even if null)
-// - trim spaces
-// - lowercase for case-insensitive match
-function normalize(s){
-    return String(s ?? "").trim().toLowerCase();
-}
 
 
 function sendText(res, statusCode, text){
@@ -49,51 +34,47 @@ const server = http.createServer((req,res)=>{
    // Example: "/search" even if req.url is "/search?q=capital..."
     const pathname = fullUrl.pathname;
     
-    console.log("METHOD:", req.method, "PATH:", pathname, "Query:", fullUrl.search);
-
-    if (pathname ==="/"){
-        return sendText(res, 200, "Try: /search?q=capital or /search?q=bangladesh\n");
+    console.log("METHOD:", req.method, "PATH:", pathname);
+    //GET /
+    if (pathname ==="/" && req.method === "GET"){
+        return sendText(res, 200, "Try: POST /echo with JSON\n");
     }
 
-    if (pathname=== "/search"){
-        const q = normalize(fullUrl.searchParams.get("q"));
+    if (pathname=== "/echo" && req.method === "POST"){
 
-        if (!q) {
-            return sendJson(res, 400, {error: "Missing ?q= in query string"});
-        }
-
-        // too short 
-        if (q.length<3){
-            return sendJson(res, 400, {error: "Query too short. Use at least 3 characters."});
-        }
-        //  Partial Matching + multiple results 
-        const hits = KNOWLEDGE.filter((item) =>{
-            const question = normalize(item.question);
-            const answer = normalize(item.answer);
-            return question.includes(q) || answer.includes(q);
-        })
-
-        //No results -> 200 with empty array (search is still valid )
-
-        if (hits.length===0){
-            return sendJson(res, 200, {query: q, count: 0, results: [] });
-        }
-
-        //Limit results 
-        
-        const MAX_RESULTS = 5;
-        const limited = hits.slice(0, MAX_RESULTS);
-
-        //Return GOOGLE style JSON 
-
-        return sendJson(res, 200, {
-            query: q, 
-            count : limited.length, 
-            results : limited.map((item) =>({
-                title : item.answer,
-                snippet : `Q: ${item.question}`,
-            })),
+        let body = "";
+        //Body arrives in chunk 
+        req.on("data",(chunk) =>{
+            body+=chunk;
         });
+        
+
+        // When all chunks are recieved
+        req.on("end",() =>{
+            //Missing body ->400
+            if (!body){
+                return sendJson(res, 400, {error: "Missing JSON body"});
+            }
+
+            try{
+                //Parse JSON text into JS object
+                const data = JSON.parse(body);
+                return sendJson(res, 200, {received: data});
+            }
+            catch{
+                //Invalid JSON ->400
+                return sendJson(res, 400, {error: "Invalid JSON"});
+            }
+        });
+
+        return; 
+        
+        
+        
+        
+        
+        
+        
         
 
         

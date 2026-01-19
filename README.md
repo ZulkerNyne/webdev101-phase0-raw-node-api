@@ -21,32 +21,32 @@ Server: http://localhost:3000
 - GET /search?q=... → 200 OK (application/json, partial match + multi-results)
 - GET /search (missing q) → 400 Bad Request (application/json)
 - GET /search (q too short) → 400 Bad Request (application/json)
+- POST /echo (valid JSON body) → 200 OK (application/json)
+- POST /echo (missing body) → 400 Bad Request (application/json)
+- POST /echo (invalid JSON) → 400 Bad Request (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
 ## Curl tests (current)
 
 ```bash
-# home + health
 curl -i http://localhost:3000/
 curl -i http://localhost:3000/health
 
-# hello
 curl -i "http://localhost:3000/hello?name=ZulkerNyne"
 curl -i "http://localhost:3000/hello"
 
-# search (partial match + multi results)
 curl -i "http://localhost:3000/search?q=capital"
 curl -i "http://localhost:3000/search?q=bangladesh"
-
-# search errors
 curl -i "http://localhost:3000/search"
 curl -i "http://localhost:3000/search?q=ca"
-
-# no results (current behavior: 404)
 curl -i "http://localhost:3000/search?q=zzzzzz"
 
-# 404
+curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json" -d '{"a":1,"msg":"hello"}'
+curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json" -d '{"a":1,'
+curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json"
+
 curl -i http://localhost:3000/nope
+
 
 ```
 
@@ -78,7 +78,7 @@ curl -i http://localhost:3000/nope
 - [x] 0.7 Query params: `/hello?name=...`
 - [x] 0.8 Search: `/search?q=...`
 - [x] 0.9 Validation + normalization + limits(partial match + multi results)
-- [ ] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
+- [x] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
 - [ ] 0.11 Method-aware routing (405 + Allow)
 - [ ] 0.12 Production JSON safety (415, 413 abort handling)
 - [ ] 0.13 Graceful shutdown
