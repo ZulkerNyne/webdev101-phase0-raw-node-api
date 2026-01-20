@@ -1,8 +1,5 @@
-// Phase 0 - Lesson 0.10
-//POST body reading (streaming data/end) + JSON.parse + try/catch
-//Endpoint: POST/echo (expects JSON body)
-//Response: {recieved: <parse-json}
-
+// Phase 0 - Lesson 0.11
+// Goal: Method-aware routing (405 + Allow headers) + consistent helpers
 const http =require("http");
 const {URL} = require("url");
 const PORT = process.env.PORT? Number(process.env.PORT) : 3000;
@@ -21,6 +18,15 @@ function sendJson(res, statusCode, obj){
 
 }
 
+function methodNotAllowed(res, allowedMethods){
+    res.statusCode = 405;
+    res.setHeader("Allow", allowedMethods.join(", "));
+    return sendJson(res, 405,{
+        error: "Method Not Allowed",
+        allow: allowedMethods,
+    });
+}
+
 
 
 
@@ -36,11 +42,19 @@ const server = http.createServer((req,res)=>{
     
     console.log("METHOD:", req.method, "PATH:", pathname);
     //GET /
-    if (pathname ==="/" && req.method === "GET"){
-        return sendText(res, 200, "Try: POST /echo with JSON\n");
+    if (pathname ==="/"){
+        if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
+        return sendText(res, 200, "Try: POST /echo GET /health\n");
     }
 
-    if (pathname=== "/echo" && req.method === "POST"){
+    //GET /health
+    if (pathname ==="/health"){
+        if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
+        return sendJson(res, 200, {status: "ok"});
+    }
+
+    if (pathname=== "/echo"){
+        if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
         let body = "";
         //Body arrives in chunk 

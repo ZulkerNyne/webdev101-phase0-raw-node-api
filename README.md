@@ -11,7 +11,6 @@ npm run dev
 ```
 
 Server: http://localhost:3000
-
 ## Implemented so far (current)
 
 - GET / → 200 OK (text/plain)
@@ -24,6 +23,7 @@ Server: http://localhost:3000
 - POST /echo (valid JSON body) → 200 OK (application/json)
 - POST /echo (missing body) → 400 Bad Request (application/json)
 - POST /echo (invalid JSON) → 400 Bad Request (application/json)
+- Wrong method on existing route → 405 Method Not Allowed + Allow header (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
 ## Curl tests (current)
@@ -47,6 +47,9 @@ curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json"
 
 curl -i http://localhost:3000/nope
 
+curl -i -X POST http://localhost:3000/health -d '{}'
+curl -i http://localhost:3000/echo
+curl -i -X POST http://localhost:3000/ -d '{}'
 
 ```
 
@@ -79,6 +82,6 @@ curl -i http://localhost:3000/nope
 - [x] 0.8 Search: `/search?q=...`
 - [x] 0.9 Validation + normalization + limits(partial match + multi results)
 - [x] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
-- [ ] 0.11 Method-aware routing (405 + Allow)
+- [x] 0.11 Method-aware routing (405 + Allow)
 - [ ] 0.12 Production JSON safety (415, 413 abort handling)
 - [ ] 0.13 Graceful shutdown
