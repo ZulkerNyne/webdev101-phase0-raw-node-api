@@ -11,6 +11,7 @@ npm run dev
 ```
 
 Server: http://localhost:3000
+
 ## Implemented so far (current)
 
 - GET / → 200 OK (text/plain)
@@ -23,6 +24,8 @@ Server: http://localhost:3000
 - POST /echo (valid JSON body) → 200 OK (application/json)
 - POST /echo (missing body) → 400 Bad Request (application/json)
 - POST /echo (invalid JSON) → 400 Bad Request (application/json)
+- POST /echo (non-JSON Content-Type) → 415 Unsupported Media Type (application/json)
+- POST /echo (payload too large) → 413 Payload Too Large (application/json)
 - Wrong method on existing route → 405 Method Not Allowed + Allow header (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
@@ -44,6 +47,9 @@ curl -i "http://localhost:3000/search?q=zzzzzz"
 curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json" -d '{"a":1,"msg":"hello"}'
 curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json" -d '{"a":1,'
 curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json"
+curl -i -X POST http://localhost:3000/echo -H "Content-Type: text/plain" -d 'hi'
+
+python -c "print('{\"x\":\"' + 'a'*1100000 + '\"}')" | curl -i -X POST http://localhost:3000/echo -H "Content-Type: application/json" --data-binary @-
 
 curl -i http://localhost:3000/nope
 
@@ -83,5 +89,5 @@ curl -i -X POST http://localhost:3000/ -d '{}'
 - [x] 0.9 Validation + normalization + limits(partial match + multi results)
 - [x] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
 - [x] 0.11 Method-aware routing (405 + Allow)
-- [ ] 0.12 Production JSON safety (415, 413 abort handling)
+- [x] 0.12 Production JSON safety (415, 413 abort handling)
 - [ ] 0.13 Graceful shutdown
