@@ -29,6 +29,13 @@ Server: http://localhost:3000
 - Wrong method on existing route → 405 Method Not Allowed + Allow header (application/json)
 - Unknown routes → 404 Not Found (application/json)
 
+### 0.13 Added (current)
+
+- Graceful shutdown:
+  - On SIGINT (Ctrl+C) or SIGTERM, server stops accepting new connections and finishes in-flight requests.
+  - During shutdown, new requests receive: 503 Service Unavailable (application/json).
+  - Forced exit after timeout to avoid hanging forever.
+
 ## Curl tests (current)
 
 ```bash
@@ -90,4 +97,4 @@ curl -i -X POST http://localhost:3000/ -d '{}'
 - [x] 0.10 POST body reading + JSON.parse try/catch (`/echo`)
 - [x] 0.11 Method-aware routing (405 + Allow)
 - [x] 0.12 Production JSON safety (415, 413 abort handling)
-- [ ] 0.13 Graceful shutdown
+- [x] 0.13 Graceful shutdown
